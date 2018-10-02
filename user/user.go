@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/go-park-mail-ru/2018_2_LSP/utils"
+	"github.com/go-park-mail-ru/2018_2_LSP_USER/utils"
 )
 
 // User Structure that stores user information retrieved from database or

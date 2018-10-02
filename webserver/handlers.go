@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/go-park-mail-ru/2018_2_LSP/user"
-	"github.com/go-park-mail-ru/2018_2_LSP/utils"
+	"github.com/go-park-mail-ru/2018_2_LSP_USER/user"
+	"github.com/go-park-mail-ru/2018_2_LSP_USER/utils"
 	"github.com/gorilla/context"
 	"github.com/thedevsaddam/govalidator"
 )

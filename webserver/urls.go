@@ -3,7 +3,7 @@ package webserver
 import (
 	"net/http"
 
-	mw "github.com/go-park-mail-ru/2018_2_LSP/webserver/middlewares"
+	mw "github.com/go-park-mail-ru/2018_2_LSP_USER/webserver/middlewares"
 )
 
 type urlHandler struct {
