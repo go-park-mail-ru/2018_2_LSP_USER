@@ -28,7 +28,7 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 	if len(orderby) == 0 {
 		orderby = "id"
 	}
-	rows, err := db.Query("SELECT username, email, firstname, lastname, rating FROM users ORDER BY `$1` DESC LIMIT 10 OFFSET $2", orderby, page*10)
+	rows, err := db.Query("SELECT username, email, firstname, lastname, rating FROM users ORDER BY "+orderby+" DESC LIMIT 10 OFFSET $1", page*10)
 	if err != nil {
 		return nil, err
 	}

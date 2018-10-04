@@ -87,7 +87,6 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	if keys, ok := r.URL.Query()["orderby"]; ok {
 		payload.OrderBy = keys[0]
 	}
-	fmt.Println(payload.OrderBy)
 
 	users, err := user.GetAll(env.DB, payload.Page, payload.OrderBy)
 	if err != nil {
@@ -134,6 +133,7 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 	v := govalidator.New(opts)
 	if e := v.ValidateJSON(); len(e) > 0 {
+		fmt.Println(payload)
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
@@ -188,9 +188,6 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	idStr := strings.TrimPrefix(r.URL.Path, "/user/")
-	fmt.Println(idStr)
-	idStr = idStr[:strings.Index(idStr, "?")+1]
-	fmt.Println(idStr)
 	var u user.User
 	var err error
 	u.ID, err = strconv.Atoi(idStr)
