@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -169,6 +170,7 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 	request = request[:len(request)-1]
 	request += " WHERE id = $1 RETURNING username, email, firstname, lastname, rating"
+	fmt.Println(request)
 	rows, err := env.DB.Query(request, u.ID)
 	if err != nil {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
