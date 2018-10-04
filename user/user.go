@@ -38,9 +38,23 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		var i User
-		err = rows.Scan(&i.Username, &i.Email, &i.FirstName, &i.LastName, &i.Rating)
+		var firstname sql.NullString
+		var lastname sql.NullString
+		err = rows.Scan(&i.Username, &i.Email, &firstname, &lastname, &i.Rating)
 		if err != nil {
 			return nil, err
+		}
+		if firstname.Valid {
+			temp, _ := firstname.Value()
+			i.FirstName = temp.(string)
+		} else {
+			i.FirstName = ""
+		}
+		if lastname.Valid {
+			temp, _ := lastname.Value()
+			i.LastName = temp.(string)
+		} else {
+			i.LastName = ""
 		}
 		users = append(users, i)
 	}
@@ -60,7 +74,24 @@ func GetOne(db *sql.DB, id int) (User, error) {
 		return u, errors.New("User not found")
 	}
 
-	err = rows.Scan(&u.Username, &u.Email, &u.FirstName, &u.LastName, &u.Rating)
+	var firstname sql.NullString
+	var lastname sql.NullString
+	err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
+	if err != nil {
+		return u, err
+	}
+	if firstname.Valid {
+		temp, _ := firstname.Value()
+		u.FirstName = temp.(string)
+	} else {
+		u.FirstName = ""
+	}
+	if lastname.Valid {
+		temp, _ := lastname.Value()
+		u.LastName = temp.(string)
+	} else {
+		u.LastName = ""
+	}
 	return u, err
 }
 
