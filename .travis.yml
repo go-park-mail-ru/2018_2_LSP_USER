@@ -13,7 +13,7 @@ after_success:
   stop user
 - sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
   run -e "DB_HOST=postgres" -e "DB_USER=$DB_USER" -e "DB_PASS=$DB_PASS" -e "DB_DB=$DB_DB"
-  -d --link postgres:postgres --publish 6060:8080 --name user --rm user-server
+  -d --link postgres:postgres --publish 5050:8080 --name user --rm user-server
 env:
   global:
   - secure: DQXc39Apaw/FXkfgUJUQLvSAHpxXGjd2IabyxTrJ2sw3Cf/yTd7HewqlRsdiE1YcGU9qXuXVBEIckhdViPTlBTXzp3uzMJ4dn6Y6tt1FhuH/MMGPmtC2ryjUrLZ6WzwxScba5UyPKif8MpJyXwPkGO4yZPEn0tkA7ES2m4bPxY5bNcOde0RN7zdHYa2AYvI90zhs+xzSXe0QEtmBK7EpNDe+Ff3MzXfu/vsJUfb56IvWavtdxK6G63QmEgOGlw2t4Woz/lWnII3j+uPO6fo2Kpz9AOEXlw7KYYA0/N0UcmKlhbEHeAvY6CTizfvyTq7BXerW7VD+DoDLQfO8a2ngykD32VrnKQ5VQDGGdfAD4QNpB+UfdsVo1uI5CtXpWjxJDy6SAa6al9ukHD1q6izhK3STJTekLW2+UJtwbOdDJG/J6Xdqwiy0mhKdp28HRn5NsUr+6CHxdTwEVaMuZNVNqAJsQhds0x8Ok8R/GcpiIFM01uIimkBZCDQvG4HPbCoC/pgLFNNMRayD6RVz0+h1yUCYXa1v/rz4eXuemlW47Y3c1GTlmGlVp/5uXiHce+ZSXHp4AfsCTGX5siLhwej1SDkjT8WOY7qnRAVnYhdjxusEOCbqeYHwSO/G9QSoiIMIG9dpELLs9BE2yphX4kQYeu7qGrHZ3tKhRODwPJfoVC8=
