@@ -137,11 +137,14 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
+	fmt.Println(payload)
 	data := make(map[string]string)
 	if len(payload.FirstName) > 0 {
+		fmt.Println("fffff")
 		data["firstname"] = u.FirstName
 	}
 	if len(payload.LastName) > 0 {
+		fmt.Println("lllll")
 		data["lastname"] = u.LastName
 	}
 
