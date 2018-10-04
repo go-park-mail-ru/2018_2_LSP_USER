@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -104,10 +103,8 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	idStr := strings.TrimPrefix(r.URL.Path, "/user/")
-	var u user.User
-	var err error
-	u.ID, err = strconv.Atoi(idStr)
-	if err != nil || u.ID < 0 {
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id < 0 {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": "User id should be unsigned integer"}}
 	}
 
@@ -137,22 +134,19 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
-	fmt.Println(payload)
 	data := make(map[string]string)
 	if len(payload.FirstName) > 0 {
-		fmt.Println("fffff")
-		data["firstname"] = u.FirstName
+		data["firstname"] = payload.FirstName
 	}
 	if len(payload.LastName) > 0 {
-		fmt.Println("lllll")
-		data["lastname"] = u.LastName
+		data["lastname"] = payload.LastName
 	}
 
 	if len(payload.Password) > 0 {
 		if len(payload.OldPassword) == 0 {
 			return StatusData{http.StatusBadRequest, map[string]string{"error": "Please, specify old password"}}
 		}
-		isValid, err := user.ValidateUserPassword(env.DB, payload.OldPassword, u.ID)
+		isValid, err := user.ValidateUserPassword(env.DB, payload.OldPassword, id)
 		if err != nil {
 			return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 		}
@@ -173,12 +167,12 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 	request = request[:len(request)-1]
 	request += " WHERE id = $1 RETURNING username, email, firstname, lastname, rating"
-	fmt.Println(request)
-	rows, err := env.DB.Query(request, u.ID)
+	rows, err := env.DB.Query(request, id)
 	if err != nil {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
 	rows.Next()
+	var u user.User
 	var firstname sql.NullString
 	var lastname sql.NullString
 	err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
