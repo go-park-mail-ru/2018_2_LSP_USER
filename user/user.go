@@ -65,18 +65,18 @@ func GetOne(db *sql.DB, id int) (User, error) {
 }
 
 // Register Function that sign ups user
-func (u *User) Register() error {
+func (u *User) Register(db *sql.DB) error {
 	var err error
 	// TODO чуть поправить валидацию
-	if err := validateRegisterUnique(u); err != nil {
+	if err := validateRegisterUnique(db, u); err != nil {
 		return err
 	}
 
-	if u.Password, err = hashPassword(u.Password); err != nil {
+	if u.Password, err = HashPassword(u.Password); err != nil {
 		return nil
 	}
 
-	if err := u.createUser(); err != nil {
+	if err := u.createUser(db); err != nil {
 		return err
 	}
 
@@ -114,7 +114,7 @@ func (u *User) Register() error {
 // 	return nil
 // }
 
-func ValidateUserPassword(password string, id int) (bool, error) {
+func ValidateUserPassword(db *sql.DB, password string, id int) (bool, error) {
 	row, err := db.Query("SELECT password FROM users WHERE id = $1", id)
 	if err != nil {
 		return false, err
@@ -151,7 +151,7 @@ func (u *User) generateToken() error {
 	return err
 }
 
-func validateRegisterUnique(u *User) error {
+func validateRegisterUnique(db *sql.DB, u *User) error {
 	rows, err := db.Query("SELECT EXISTS (SELECT * FROM users WHERE email = $1 LIMIT 1) AS email, EXISTS (SELECT * FROM users WHERE username = $2 LIMIT 1) AS username", u.Email, u.Username)
 	if err != nil {
 		return err
@@ -175,7 +175,7 @@ func validateRegisterUnique(u *User) error {
 	return nil
 }
 
-func (u *User) createUser() error {
+func (u *User) createUser(db *sql.DB) error {
 	rows, err := db.Query("INSERT INTO users (first_name, last_name, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING id;", u.FirstName, u.LastName, u.Email, u.Password, u.Username)
 	if err != nil {
 		return err
@@ -188,7 +188,7 @@ func (u *User) createUser() error {
 	return err
 }
 
-func hashPassword(pwd string) (string, error) {
+func HashPassword(pwd string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.MinCost)
 	if err != nil {
 		return "", err

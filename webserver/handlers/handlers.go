@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-park-mail-ru/2018_2_LSP/utils"
 	"github.com/go-park-mail-ru/2018_2_LSP_USER/user"
-	"github.com/go-park-mail-ru/2018_2_LSP_USER/utils"
 	"github.com/thedevsaddam/govalidator"
 )
 
@@ -49,7 +49,7 @@ func PostHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 		return StatusData{http.StatusBadRequest, err}
 	}
 
-	if err := u.Register(); err != nil {
+	if err := u.Register(env.DB); err != nil {
 		return StatusData{http.StatusConflict, map[string]string{"error": err.Error()}}
 	}
 
@@ -139,14 +139,14 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		if len(payload.OldPassword) == 0 {
 			return StatusData{http.StatusBadRequest, map[string]string{"error": "Please, specify old password"}}
 		}
-		isValid, err := user.ValidateUserPassword(payload.OldPassword, u.ID)
+		isValid, err := user.ValidateUserPassword(env.DB, payload.OldPassword, u.ID)
 		if err != nil {
 			return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 		}
 		if !isValid {
 			return StatusData{http.StatusBadRequest, map[string]string{"error": "Wrong old password"}}
 		}
-		data["password"] = utils.HashAndSalt([]byte(payload.Password))
+		data["password"], _ = user.HashPassword(payload.Password) // TODO error
 	}
 
 	if len(data) == 0 {
