@@ -59,9 +59,9 @@ func PostHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	payload := struct {
-		Page    int    `json:"page"`
-		Fields  string `json:"fields"`
-		OrderBy string `json:"orderby"`
+		Page    int
+		Fields  string
+		OrderBy string
 	}{}
 
 	rules := govalidator.MapData{
@@ -77,6 +77,12 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	if e := v.Validate(); len(e) > 0 {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
+	}
+
+	payload.Fields = r.URL.Query()["fields"][0]
+	payload.Page, _ = strconv.Atoi(r.URL.Query()["page"][0])
+	if keys, ok := r.URL.Query()["orderby"]; ok {
+		payload.OrderBy = keys[0]
 	}
 
 	users, err := user.GetAll(env.DB, payload.Page, payload.OrderBy)
@@ -187,7 +193,7 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	payload := struct {
-		Fields string `json:"fields"`
+		Fields string
 	}{}
 
 	rules := govalidator.MapData{
@@ -196,7 +202,6 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	opts := govalidator.Options{
 		Request: r,
-		Data:    &u,
 		Rules:   rules,
 	}
 	v := govalidator.New(opts)
@@ -204,6 +209,7 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
+	payload.Fields = r.URL.Query()["fields"][0]
 
 	fieldsToReturn := strings.Split(payload.Fields, ",")
 	answer := extractFields(u, fieldsToReturn)
