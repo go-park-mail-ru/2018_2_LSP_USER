@@ -111,7 +111,7 @@ func (u *User) Register(db *sql.DB) error {
 		return err
 	}
 
-	if err := u.generateToken(); err != nil {
+	if err := u.generateToken(); err != nil { // TODO set cookies
 		return err
 	}
 
@@ -207,7 +207,7 @@ func validateRegisterUnique(db *sql.DB, u *User) error {
 }
 
 func (u *User) createUser(db *sql.DB) error {
-	rows, err := db.Query("INSERT INTO users (first_name, last_name, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING id;", u.FirstName, u.LastName, u.Email, u.Password, u.Username)
+	rows, err := db.Query("INSERT INTO users (firstname, lastname, email, password, username) VALUES ($1, $2, $3, $4, $5) RETURNING id;", u.FirstName, u.LastName, u.Email, u.Password, u.Username)
 	if err != nil {
 		return err
 	}

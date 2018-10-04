@@ -13,6 +13,9 @@ import (
 
 func init() {
 	govalidator.AddCustomRule("fields", func(field string, rule string, message string, value interface{}) error {
+		if value == nil {
+			return nil
+		}
 		fields := strings.Split(value.(string), ",")
 		if len(fields) == 0 {
 			return errors.New("Field keyword should be field list divided by comma. Available fields: " + strings.TrimPrefix(rule, "fields:"))
@@ -90,10 +93,9 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
 
-	answer := []map[string]string{}
+	answer := []map[string]interface{}{}
 	fieldsToReturn := strings.Split(payload.Fields, ",")
 	for _, u := range users {
-		fmt.Println(u)
 		answer = append(answer, extractFields(u, fieldsToReturn))
 	}
 	return StatusData{http.StatusOK, answer}
@@ -211,15 +213,19 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 	payload.Fields = r.URL.Query()["fields"][0]
 
+	u, err = user.GetOne(env.DB, u.ID)
+	if err != nil {
+		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+	}
+
 	fieldsToReturn := strings.Split(payload.Fields, ",")
 	answer := extractFields(u, fieldsToReturn)
 
 	return StatusData{http.StatusOK, answer}
 }
 
-func extractFields(u user.User, fieldsToReturn []string) map[string]string {
-	fmt.Println(fieldsToReturn)
-	answer := map[string]string{}
+func extractFields(u user.User, fieldsToReturn []string) map[string]interface{} {
+	answer := map[string]interface{}{}
 	for _, f := range fieldsToReturn {
 		switch f {
 		case "firstname":
@@ -231,7 +237,7 @@ func extractFields(u user.User, fieldsToReturn []string) map[string]string {
 		case "username":
 			answer["username"] = u.Username
 		case "rating":
-			answer["rating"] = u.Username
+			answer["rating"] = u.Rating
 		}
 	}
 	fmt.Println(answer)
