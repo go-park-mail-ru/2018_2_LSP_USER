@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -86,6 +87,8 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	answer := []map[string]string{}
 	fieldsToReturn := strings.Split(payload.Fields, ",")
 	for _, u := range users {
+		fmt.Println(u)
+		fmt.Println(extractFields(u, fieldsToReturn))
 		answer = append(answer, extractFields(u, fieldsToReturn))
 	}
 	return StatusData{http.StatusOK, answer}
