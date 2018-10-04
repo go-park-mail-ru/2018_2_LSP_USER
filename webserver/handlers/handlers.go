@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 	"strconv"
@@ -167,13 +168,30 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		request += k + "='" + v + "',"
 	}
 	request = request[:len(request)-1]
-	request += " WHERE id = $1 RETURNING firstname, lastname, email, username"
+	request += " WHERE id = $1 RETURNING username, email, firstname, lastname, rating"
 	rows, err := env.DB.Query(request, u.ID)
 	if err != nil {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
 	rows.Next()
-	err = rows.Scan(&u.FirstName, &u.LastName, &u.Email, &u.Username)
+	var firstname sql.NullString
+	var lastname sql.NullString
+	err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
+	if err != nil {
+		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+	}
+	if firstname.Valid {
+		temp, _ := firstname.Value()
+		u.FirstName = temp.(string)
+	} else {
+		u.FirstName = ""
+	}
+	if lastname.Valid {
+		temp, _ := lastname.Value()
+		u.LastName = temp.(string)
+	} else {
+		u.LastName = ""
+	}
 	if err != nil {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
