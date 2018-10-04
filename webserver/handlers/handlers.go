@@ -188,7 +188,8 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	idStr := strings.TrimPrefix(r.URL.Path, "/user/")
-	idStr = idStr[:strings.Index(idStr, "?")-1]
+	fmt.Println(idStr)
+	idStr = idStr[:strings.Index(idStr, "?")+1]
 	fmt.Println(idStr)
 	var u user.User
 	var err error
