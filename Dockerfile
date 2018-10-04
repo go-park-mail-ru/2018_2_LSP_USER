@@ -8,6 +8,6 @@ RUN cd /go/src/github.com/go-park-mail-ru/2018_2_LSP_USER && go get ./...
 
 RUN go install github.com/go-park-mail-ru/2018_2_LSP_USER
 
-ENTRYPOINT /go/bin/2018_2_LSP_AUTH
+ENTRYPOINT /go/bin/2018_2_LSP_USER
 
 EXPOSE 8080
