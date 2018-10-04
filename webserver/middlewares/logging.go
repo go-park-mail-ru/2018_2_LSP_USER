@@ -3,12 +3,14 @@ package middlewares
 import (
 	"log"
 	"net/http"
+
+	"github.com/go-park-mail-ru/2018_2_LSP_USER/webserver/handlers"
 )
 
 // Logging Middleware for connection logging
-func Logging(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Logging(next handlers.HandlerFunc) handlers.HandlerFunc {
+	return func(env *handlers.Env, w http.ResponseWriter, r *http.Request) error {
 		log.Printf("Logged connection from %s", r.RemoteAddr)
-		next.ServeHTTP(w, r)
+		return next(env, w, r)
 	}
 }
