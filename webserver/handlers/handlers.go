@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-park-mail-ru/2018_2_LSP/utils"
 	"github.com/go-park-mail-ru/2018_2_LSP_USER/user"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -160,7 +159,7 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 	request = request[:len(request)-1]
 	request += " WHERE id = $1 RETURNING firstname, lastname, email, username"
-	rows, err := utils.Query(request, u.ID)
+	rows, err := env.DB.Query(request, u.ID)
 	if err != nil {
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
