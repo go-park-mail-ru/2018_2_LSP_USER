@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -123,17 +122,16 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		"lastname":    []string{"between:4,25"},
 		"password":    []string{"alpha_space"},
 		"oldpassword": []string{"alpha_space"},
-		"fields":      []string{"fields:username,email,firstname,lastname,rating"},
+		"fields":      []string{"fields:username,email,firstname,lastname,rating", "required"},
 	}
 
 	opts := govalidator.Options{
 		Request: r,
-		Data:    &u,
+		Data:    &payload,
 		Rules:   rules,
 	}
 	v := govalidator.New(opts)
 	if e := v.ValidateJSON(); len(e) > 0 {
-		fmt.Println(payload)
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
