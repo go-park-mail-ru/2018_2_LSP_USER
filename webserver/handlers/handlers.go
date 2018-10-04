@@ -73,7 +73,7 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 		Rules:   rules,
 	}
 	v := govalidator.New(opts)
-	if e := v.ValidateJSON(); len(e) > 0 {
+	if e := v.Validate(); len(e) > 0 {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
@@ -198,7 +198,7 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		Rules:   rules,
 	}
 	v := govalidator.New(opts)
-	if e := v.ValidateJSON(); len(e) > 0 {
+	if e := v.Validate(); len(e) > 0 {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
 	}
