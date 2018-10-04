@@ -88,7 +88,6 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	fieldsToReturn := strings.Split(payload.Fields, ",")
 	for _, u := range users {
 		fmt.Println(u)
-		fmt.Println(extractFields(u, fieldsToReturn))
 		answer = append(answer, extractFields(u, fieldsToReturn))
 	}
 	return StatusData{http.StatusOK, answer}
@@ -213,6 +212,7 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 }
 
 func extractFields(u user.User, fieldsToReturn []string) map[string]string {
+	fmt.Println(fieldsToReturn)
 	answer := map[string]string{}
 	for _, f := range fieldsToReturn {
 		switch f {
@@ -228,5 +228,6 @@ func extractFields(u user.User, fieldsToReturn []string) map[string]string {
 			answer["rating"] = u.Username
 		}
 	}
+	fmt.Println(answer)
 	return answer
 }
