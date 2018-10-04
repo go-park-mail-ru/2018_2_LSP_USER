@@ -87,6 +87,7 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	if keys, ok := r.URL.Query()["orderby"]; ok {
 		payload.OrderBy = keys[0]
 	}
+	fmt.Println(payload.OrderBy)
 
 	users, err := user.GetAll(env.DB, payload.Page, payload.OrderBy)
 	if err != nil {
@@ -123,7 +124,7 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		"lastname":    []string{"between:4,25"},
 		"password":    []string{"alpha_space"},
 		"oldpassword": []string{"alpha_space"},
-		"fields":      []string{"required", "fields:username,email,firstname,lastname,rating"},
+		"fields":      []string{"fields:username,email,firstname,lastname,rating", "required"},
 	}
 
 	opts := govalidator.Options{
@@ -187,6 +188,8 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	idStr := strings.TrimPrefix(r.URL.Path, "/user/")
+	idStr = idStr[:strings.Index(idStr, "?")-1]
+	fmt.Println(idStr)
 	var u user.User
 	var err error
 	u.ID, err = strconv.Atoi(idStr)
