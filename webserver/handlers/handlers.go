@@ -123,7 +123,7 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		"lastname":    []string{"between:4,25"},
 		"password":    []string{"alpha_space"},
 		"oldpassword": []string{"alpha_space"},
-		"fields":      []string{"fields:username,email,firstname,lastname,rating", "required"},
+		"fields":      []string{"fields:username,email,firstname,lastname,rating"},
 	}
 
 	opts := govalidator.Options{
@@ -241,6 +241,5 @@ func extractFields(u user.User, fieldsToReturn []string) map[string]interface{} 
 			answer["rating"] = u.Rating
 		}
 	}
-	fmt.Println(answer)
 	return answer
 }

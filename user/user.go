@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -63,6 +64,7 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 
 func GetOne(db *sql.DB, id int) (User, error) {
 	var u User
+	fmt.Println(id)
 	rows, err := db.Query("SELECT username, email, firstname, lastname, rating FROM users LIMIT 1 WHERE id = $1", id)
 	if err != nil {
 		return u, err
