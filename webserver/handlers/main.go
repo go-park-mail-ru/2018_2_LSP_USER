@@ -10,17 +10,17 @@ import (
 // StatusData represents an error with an associated HTTP status code.
 type StatusData struct {
 	Code int
-	data interface{}
+	Data interface{}
 }
 
 // Allows StatusData to satisfy the error interface.
 func (sd StatusData) Error() string {
-	return fmt.Sprintf("%v", sd.data)
+	return fmt.Sprintf("%v", sd.Data)
 }
 
 // Allows StatusData to satisfy the error interface.
 func (sd StatusData) GetJsonData() ([]byte, error) {
-	return json.Marshal(sd.data)
+	return json.Marshal(sd.Data)
 }
 
 // Returns our HTTP status code.

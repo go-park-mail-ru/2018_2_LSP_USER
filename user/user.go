@@ -13,17 +13,18 @@ import (
 // User Structure that stores user information retrieved from database or
 // entered by user during registration
 type User struct {
+	ID          int    `json:"id"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	OldPassword string `json:"oldpassword"`
 	Rating      int    `json:"rating"`
-	ID          int    `json:"id"`
 	Token       string `json:"token"`
 	Username    string `json:"username"`
 	FirstName   string `json:"firstname"`
 	LastName    string `json:"lastname"`
 }
 
+// GetAll return information about all user by pages (10 items per page)
 func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 	if len(orderby) == 0 {
 		orderby = "id"
@@ -35,30 +36,52 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 
 	defer rows.Close()
 
+	var firstname sql.NullString
+	var lastname sql.NullString
 	users := make([]User, 0)
 	for rows.Next() {
-		var i User
-		var firstname sql.NullString
-		var lastname sql.NullString
-		err = rows.Scan(&i.Username, &i.Email, &firstname, &lastname, &i.Rating)
+		var u User
+		err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
 		if err != nil {
 			return nil, err
 		}
-		if firstname.Valid {
-			temp, _ := firstname.Value()
-			i.FirstName = temp.(string)
-		} else {
-			i.FirstName = ""
+		if temp, err := firstname.Value(); err == nil {
+			u.FirstName = temp.(string)
 		}
-		if lastname.Valid {
-			temp, _ := lastname.Value()
-			i.LastName = temp.(string)
-		} else {
-			i.LastName = ""
+		if temp, err := lastname.Value(); err == nil {
+			u.LastName = temp.(string)
 		}
-		users = append(users, i)
+		users = append(users, u)
 	}
 	return users, err
+}
+
+func (u *User) UpdateOne(db *sql.DB, data map[string]string) error {
+	request := "UPDATE users SET "
+
+	for k, v := range data {
+		request += k + "='" + v + "',"
+	}
+	request = request[:len(request)-1]
+	request += " WHERE id = $1 RETURNING username, email, firstname, lastname, rating"
+	rows, err := db.Query(request, u.ID)
+	if err != nil {
+		return err
+	}
+	rows.Next()
+	var firstname sql.NullString
+	var lastname sql.NullString
+	err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
+	if err != nil {
+		return err
+	}
+	if temp, err := firstname.Value(); err == nil {
+		u.FirstName = temp.(string)
+	}
+	if temp, err := lastname.Value(); err == nil {
+		u.LastName = temp.(string)
+	}
+	return nil
 }
 
 func GetOne(db *sql.DB, id int) (User, error) {
@@ -80,17 +103,11 @@ func GetOne(db *sql.DB, id int) (User, error) {
 	if err != nil {
 		return u, err
 	}
-	if firstname.Valid {
-		temp, _ := firstname.Value()
+	if temp, err := firstname.Value(); err == nil {
 		u.FirstName = temp.(string)
-	} else {
-		u.FirstName = ""
 	}
-	if lastname.Valid {
-		temp, _ := lastname.Value()
+	if temp, err := lastname.Value(); err == nil {
 		u.LastName = temp.(string)
-	} else {
-		u.LastName = ""
 	}
 	return u, err
 }
@@ -111,39 +128,12 @@ func (u *User) Register(db *sql.DB) error {
 		return err
 	}
 
-	if err := u.generateToken(); err != nil { // TODO set cookies
+	if err := u.generateToken(); err != nil {
 		return err
 	}
 
 	return nil
 }
-
-// Auth Function that authenticates user
-// func (u *User) Auth(db *sql.DB, email string, password string) error {
-// 	rows, err := db.Query("SELECT id, username, email, firstname, lastname, password FROM users WHERE email = $1 LIMIT 1", email)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	defer rows.Close()
-// 	if !rows.Next() {
-// 		return errors.New("User not found")
-// 	}
-
-// 	if err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.FirstName, &u.LastName, &u.Password); err != nil {
-// 		return err
-// 	}
-
-// 	if !validatePassword(u.Password, password) {
-// 		return errors.New("Wrong password for user")
-// 	}
-
-// 	if err := u.generateToken(); err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
 
 func ValidateUserPassword(db *sql.DB, password string, id int) (bool, error) {
 	row, err := db.Query("SELECT password FROM users WHERE id = $1", id)
