@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -12,7 +13,8 @@ import (
 
 // PostHandlerAll creates new user
 func PostHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
-	if context.Get(r, "claims") != nil {
+	fmt.Println(context.Get(r, "claims"))
+	if context.Get(r, "claims") != nil { // TODO FIX
 		return StatusData{http.StatusConflict, map[string]string{"error": "User is alredy logged in"}}
 	}
 	var u user.User
@@ -52,7 +54,7 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}{}
 	rules := govalidator.MapData{
 		"page":    []string{"required", "numeric"},
-		"fields":  []string{"required", "fields:id,username,email,firstname,lastname,rating"},
+		"fields":  []string{"required", "fields:username,email,firstname,lastname,rating,id,avatar"},
 		"orderby": []string{"required", "in:id,username,email,firstname,lastname,rating"},
 	}
 	opts := govalidator.Options{

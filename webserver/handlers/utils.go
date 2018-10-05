@@ -34,6 +34,8 @@ func extractFields(u user.User, fieldsToReturn []string) map[string]interface{} 
 			answer["username"] = u.Username
 		case "rating":
 			answer["rating"] = u.Rating
+		case "avatar":
+			answer["avatar"] = u.Avatar
 		}
 	}
 	return answer

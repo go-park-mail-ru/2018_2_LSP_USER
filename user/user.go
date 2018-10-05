@@ -22,6 +22,7 @@ type User struct {
 	Username    string `json:"username"`
 	FirstName   string `json:"firstname"`
 	LastName    string `json:"lastname"`
+	Avatar      string `json:"avatar"`
 }
 
 // GetAll return information about all user by pages (10 items per page)
@@ -29,7 +30,7 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 	if len(orderby) == 0 {
 		orderby = "id"
 	}
-	rows, err := db.Query("SELECT username, email, firstname, lastname, rating FROM users ORDER BY "+orderby+" DESC LIMIT 10 OFFSET $1", page*10)
+	rows, err := db.Query("SELECT id, username, email, firstname, lastname, rating, avatar FROM users ORDER BY "+orderby+" DESC LIMIT 10 OFFSET $1", page*10)
 	if err != nil {
 		return nil, err
 	}
@@ -38,10 +39,11 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 
 	var firstname sql.NullString
 	var lastname sql.NullString
+	var avatar sql.NullString
 	users := make([]User, 0)
 	for rows.Next() {
 		var u User
-		err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
+		err = rows.Scan(&u.ID, &u.Username, &u.Email, &firstname, &lastname, &u.Rating, &avatar)
 		if err != nil {
 			return nil, err
 		}
@@ -50,6 +52,9 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 		}
 		if temp, err := lastname.Value(); temp != nil && err == nil {
 			u.LastName = temp.(string)
+		}
+		if temp, err := avatar.Value(); temp != nil && err == nil {
+			u.Avatar = temp.(string)
 		}
 		users = append(users, u)
 	}
@@ -63,7 +68,7 @@ func (u *User) UpdateOne(db *sql.DB, data map[string]string) error {
 		request += k + "='" + v + "',"
 	}
 	request = request[:len(request)-1]
-	request += " WHERE id = $1 RETURNING username, email, firstname, lastname, rating"
+	request += " WHERE id = $1 RETURNING id, username, email, firstname, lastname, rating, avatar"
 	rows, err := db.Query(request, u.ID)
 	if err != nil {
 		return err
@@ -71,7 +76,8 @@ func (u *User) UpdateOne(db *sql.DB, data map[string]string) error {
 	rows.Next()
 	var firstname sql.NullString
 	var lastname sql.NullString
-	err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
+	var avatar sql.NullString
+	err = rows.Scan(&u.ID, &u.Username, &u.Email, &firstname, &lastname, &u.Rating, &avatar)
 	if err != nil {
 		return err
 	}
@@ -81,12 +87,15 @@ func (u *User) UpdateOne(db *sql.DB, data map[string]string) error {
 	if temp, err := lastname.Value(); temp != nil && err == nil {
 		u.LastName = temp.(string)
 	}
+	if temp, err := avatar.Value(); temp != nil && err == nil {
+		u.Avatar = temp.(string)
+	}
 	return nil
 }
 
 func GetOne(db *sql.DB, id int) (User, error) {
 	var u User
-	rows, err := db.Query("SELECT username, email, firstname, lastname, rating FROM users WHERE id = $1 LIMIT 1", id)
+	rows, err := db.Query("SELECT id, username, email, firstname, lastname, rating, avatar FROM users WHERE id = $1 LIMIT 1", id)
 	if err != nil {
 		return u, err
 	}
@@ -99,7 +108,8 @@ func GetOne(db *sql.DB, id int) (User, error) {
 
 	var firstname sql.NullString
 	var lastname sql.NullString
-	err = rows.Scan(&u.Username, &u.Email, &firstname, &lastname, &u.Rating)
+	var avatar sql.NullString
+	err = rows.Scan(&u.ID, &u.Username, &u.Email, &firstname, &lastname, &u.Rating, &avatar)
 	if err != nil {
 		return u, err
 	}
@@ -108,6 +118,9 @@ func GetOne(db *sql.DB, id int) (User, error) {
 	}
 	if temp, err := lastname.Value(); temp != nil && err == nil {
 		u.LastName = temp.(string)
+	}
+	if temp, err := avatar.Value(); temp != nil && err == nil {
+		u.Avatar = temp.(string)
 	}
 	return u, err
 }
