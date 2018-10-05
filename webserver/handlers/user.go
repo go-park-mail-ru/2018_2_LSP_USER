@@ -84,7 +84,7 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		"lastname":    []string{"between:4,25"},
 		"password":    []string{"alpha_space"},
 		"oldpassword": []string{"alpha_space"},
-		"fields":      []string{"fields:username,email,firstname,lastname,rating", "required"},
+		"fields":      []string{"fields:username,email,firstname,lastname,rating,id,avatar", "required"},
 	}
 
 	opts := govalidator.Options{
@@ -149,7 +149,7 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}{}
 
 	rules := govalidator.MapData{
-		"fields": []string{"required", "fields:username,email,firstname,lastname,rating"},
+		"fields": []string{"required", "fields:username,email,firstname,lastname,rating,id,avatar"},
 	}
 
 	opts := govalidator.Options{

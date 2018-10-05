@@ -69,11 +69,7 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	payload.Fields = r.URL.Query()["fields"][0]
 	payload.Page, _ = strconv.Atoi(r.URL.Query()["page"][0])
-	if keys, ok := r.URL.Query()["orderby"]; ok {
-		payload.OrderBy = keys[0]
-	} else {
-		payload.OrderBy = "id"
-	}
+	payload.OrderBy = r.URL.Query()["orderby"][0]
 
 	users, err := user.GetAll(env.DB, payload.Page, payload.OrderBy)
 	if err != nil {
