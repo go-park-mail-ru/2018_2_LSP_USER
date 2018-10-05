@@ -12,7 +12,7 @@ after_success:
 - sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
   stop user
 - sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
-  run -e "DB_HOST=postgres" -e "DB_USER=$DB_USER" -e "DB_PASS=$DB_PASS" -e "DB_DB=$DB_DB"
+  run -e "DB_HOST=postgres" -e "DB_USER=$DB_USER" -e "DB_PASS=$DB_PASS" -e "DB_DB=$DB_DB" -e "AVATARS_PATH=/go/src/github.com/go-park-mail-ru/2018_2_LSP/avatars/"
   -d --link postgres:postgres --publish 5050:8080 --name user --rm user-server
 env:
   global:

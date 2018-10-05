@@ -11,6 +11,54 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
+func PostHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
+	idStr := strings.TrimPrefix(r.URL.Path, "/user/")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id < 0 {
+		return StatusData{http.StatusBadRequest, map[string]string{"error": "User id should be unsigned integer"}}
+	}
+
+	claims := context.Get(r, "claims").(jwt.MapClaims)
+	if int(claims["id"].(float64)) != id {
+		return StatusData{http.StatusForbidden, map[string]string{"error": "Not enought permissions"}}
+	}
+
+	rules := govalidator.MapData{
+		"file:file": []string{"required", "ext:jpg,png", "size:300000", "mime:image/jpg,image/png"},
+	}
+
+	opts := govalidator.Options{
+		Request: r,
+		Rules:   rules,
+	}
+	v := govalidator.New(opts)
+	if e := v.Validate(); len(e) > 0 {
+		err := map[string]interface{}{"validationError": e}
+		return StatusData{http.StatusBadRequest, err}
+	}
+
+	file, handle, err := r.FormFile("file")
+	if err != nil {
+		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+	}
+	defer file.Close()
+
+	var u user.User
+	u.ID = id
+
+	err = saveFile(file, handle, u.ID)
+	if err != nil {
+		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+	}
+	response := map[string]string{"URL": "/avatars/" + strconv.Itoa(u.ID) + "_" + handle.Filename}
+	err = u.UpdateOne(env.DB, map[string]string{"avatar": response["URL"]})
+	if err != nil {
+		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+	}
+
+	return StatusData{http.StatusOK, response}
+}
+
 func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	idStr := strings.TrimPrefix(r.URL.Path, "/user/")
 	id, err := strconv.Atoi(idStr)

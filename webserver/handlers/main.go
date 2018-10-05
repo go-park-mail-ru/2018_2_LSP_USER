@@ -30,11 +30,7 @@ func (se StatusData) Status() int {
 
 // A (simple) example of our application-wide configuration.
 type Env struct {
-	DB       *sql.DB
-	Host     string
-	Database string
-	Username string
-	Password string
+	DB *sql.DB
 }
 
 // HandlerFunc func for Handler

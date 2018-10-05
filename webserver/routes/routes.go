@@ -14,8 +14,9 @@ func Get() handlers.HandlersMap {
 		"get":  middlewares.Cors(handlers.GetHandlerAll),
 	})
 	handlersMap["/user/"] = makeRequest(handlers.HandlersMap{
-		"put": middlewares.Cors(middlewares.Auth(handlers.PutHandler)),
-		"get": middlewares.Cors(handlers.GetHandler),
+		"put":  middlewares.Cors(middlewares.Auth(handlers.PutHandler)),
+		"post": middlewares.Cors(middlewares.Auth(handlers.PostHandler)),
+		"get":  middlewares.Cors(handlers.GetHandler),
 	})
 	return handlersMap
 }
