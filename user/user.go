@@ -45,10 +45,10 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 		if err != nil {
 			return nil, err
 		}
-		if temp, err := firstname.Value(); err == nil {
+		if temp, err := firstname.Value(); temp != nil && err == nil {
 			u.FirstName = temp.(string)
 		}
-		if temp, err := lastname.Value(); err == nil {
+		if temp, err := lastname.Value(); temp != nil && err == nil {
 			u.LastName = temp.(string)
 		}
 		users = append(users, u)
@@ -75,10 +75,10 @@ func (u *User) UpdateOne(db *sql.DB, data map[string]string) error {
 	if err != nil {
 		return err
 	}
-	if temp, err := firstname.Value(); err == nil {
+	if temp, err := firstname.Value(); temp != nil && err == nil {
 		u.FirstName = temp.(string)
 	}
-	if temp, err := lastname.Value(); err == nil {
+	if temp, err := lastname.Value(); temp != nil && err == nil {
 		u.LastName = temp.(string)
 	}
 	return nil
@@ -103,10 +103,10 @@ func GetOne(db *sql.DB, id int) (User, error) {
 	if err != nil {
 		return u, err
 	}
-	if temp, err := firstname.Value(); err == nil {
+	if temp, err := firstname.Value(); temp != nil && err == nil {
 		u.FirstName = temp.(string)
 	}
-	if temp, err := lastname.Value(); err == nil {
+	if temp, err := lastname.Value(); temp != nil && err == nil {
 		u.LastName = temp.(string)
 	}
 	return u, err
