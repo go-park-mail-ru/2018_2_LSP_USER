@@ -73,7 +73,10 @@ func (u *User) UpdateOne(db *sql.DB, data map[string]string) error {
 	if err != nil {
 		return err
 	}
-	rows.Next()
+	defer rows.Close()
+	if !rows.Next() {
+		return errors.New("User not found")
+	}
 	var firstname sql.NullString
 	var lastname sql.NullString
 	var avatar sql.NullString
@@ -156,7 +159,9 @@ func ValidateUserPassword(db *sql.DB, password string, id int) (bool, error) {
 	var hashedPassword string
 
 	defer row.Close()
-	row.Next()
+	if !row.Next() {
+		return false, errors.New("User not found")
+	}
 
 	err = row.Scan(&hashedPassword)
 	if err != nil {
@@ -192,7 +197,9 @@ func validateRegisterUnique(db *sql.DB, u *User) error {
 	}
 
 	defer rows.Close()
-	rows.Next()
+	if !rows.Next() {
+		return errors.New("User not found")
+	}
 
 	emailTaken, usernameTaken := false, false
 	if err = rows.Scan(&emailTaken, &usernameTaken); err != nil {
