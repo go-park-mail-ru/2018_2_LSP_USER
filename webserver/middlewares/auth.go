@@ -25,7 +25,7 @@ func Auth(next handlers.HandlerFunc) handlers.HandlerFunc {
 		tokenString := headerPayload.Value + "." + signature.Value
 		claims := jwt.MapClaims{}
 		_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte("HeAdfasdf3ref&^%$Dfrtgauyhia"), nil
+			return []byte("abcderfs334f34r3we34"), nil
 		})
 
 		if err != nil {
