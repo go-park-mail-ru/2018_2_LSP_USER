@@ -38,6 +38,10 @@ func PostHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err := u.Register(env.DB); err != nil {
+		env.Logger.Infow("Can't register user",
+			"error", err.Error(),
+			"user", u,
+		)
 		return StatusData{http.StatusConflict, map[string]string{"error": err.Error()}}
 	}
 
@@ -73,6 +77,10 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	users, err := user.GetAll(env.DB, payload.Page, payload.OrderBy)
 	if err != nil {
+		env.Logger.Infow("Can't get all users",
+			"error", err.Error(),
+			"payload", payload,
+		)
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
 

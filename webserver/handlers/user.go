@@ -20,6 +20,10 @@ func PostHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	claims := context.Get(r, "claims").(jwt.MapClaims)
 	if int(claims["id"].(float64)) != id {
+		env.Logger.Infow("Not enough permssions",
+			"user", int(claims["id"].(float64)),
+			"requested_user", id,
+		)
 		return StatusData{http.StatusForbidden, map[string]string{"error": "Not enought permissions"}}
 	}
 
@@ -39,7 +43,10 @@ func PostHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	file, handle, err := r.FormFile("file")
 	if err != nil {
-		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+		env.Logger.Infow("File read error",
+			"error", err.Error(),
+		)
+		return StatusData{http.StatusInternalServerError, map[string]string{"error": err.Error()}}
 	}
 	defer file.Close()
 
@@ -48,12 +55,18 @@ func PostHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	err = saveFile(file, handle, u.ID)
 	if err != nil {
-		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+		env.Logger.Infow("File save error",
+			"error", err.Error(),
+		)
+		return StatusData{http.StatusInternalServerError, map[string]string{"error": err.Error()}}
 	}
 	response := map[string]string{"URL": "/avatars/" + strconv.Itoa(u.ID) + "_" + handle.Filename}
 	err = u.UpdateOne(env.DB, map[string]string{"avatar": response["URL"]})
 	if err != nil {
-		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
+		env.Logger.Infow("User update error",
+			"error", err.Error(),
+		)
+		return StatusData{http.StatusInternalServerError, map[string]string{"error": err.Error()}}
 	}
 
 	return StatusData{http.StatusOK, response}
@@ -68,6 +81,10 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	claims := context.Get(r, "claims").(jwt.MapClaims)
 	if int(claims["id"].(float64)) != id {
+		env.Logger.Infow("Not enough permssions",
+			"user", int(claims["id"].(float64)),
+			"requested_user", id,
+		)
 		return StatusData{http.StatusForbidden, map[string]string{"error": "Not enought permissions"}}
 	}
 
@@ -111,12 +128,21 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		}
 		isValid, err := user.ValidateUserPassword(env.DB, payload.OldPassword, id)
 		if err != nil {
+			env.Logger.Infow("User validate password error",
+				"error", err.Error(),
+			)
 			return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 		}
 		if !isValid {
 			return StatusData{http.StatusBadRequest, map[string]string{"error": "Wrong old password"}}
 		}
-		data["password"], _ = user.HashPassword(payload.Password) // TODO error
+		data["password"], err = user.HashPassword(payload.Password)
+		if err != nil {
+			env.Logger.Infow("User hash password error",
+				"error", err.Error(),
+			)
+			return StatusData{http.StatusInternalServerError, map[string]string{"error": err.Error()}}
+		}
 	}
 
 	if len(data) == 0 {
@@ -126,6 +152,10 @@ func PutHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	u := user.User{}
 	u.ID = id
 	if err = u.UpdateOne(env.DB, data); err != nil {
+		env.Logger.Infow("Can't update user",
+			"error", err.Error(),
+			"data", data,
+		)
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
 
@@ -165,6 +195,10 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 
 	u, err = user.GetOne(env.DB, u.ID)
 	if err != nil {
+		env.Logger.Infow("Can't get one user",
+			"id", u.ID,
+			"error", err.Error(),
+		)
 		return StatusData{http.StatusBadRequest, map[string]string{"error": err.Error()}}
 	}
 
