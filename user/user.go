@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"errors"
+	"os"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -186,7 +187,7 @@ func (u *User) generateToken() error {
 		"id":        u.ID,
 		"generated": time.Now(),
 	})
-	u.Token, err = token.SignedString([]byte("abcderfs334f34r3we34"))
+	u.Token, err = token.SignedString([]byte(os.Getenv("JWT_TOKEN")))
 	return err
 }
 
