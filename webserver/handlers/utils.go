@@ -36,6 +36,10 @@ func extractFields(u user.User, fieldsToReturn []string) map[string]interface{} 
 			answer["rating"] = u.Rating
 		case "avatar":
 			answer["avatar"] = u.Avatar
+		case "totalscore":
+			answer["totalscore"] = u.TotalScore
+		case "totalgames":
+			answer["totalgames"] = u.TotalGames
 		}
 	}
 	return answer

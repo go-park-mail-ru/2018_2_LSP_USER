@@ -24,6 +24,8 @@ type User struct {
 	FirstName   string `json:"firstname"`
 	LastName    string `json:"lastname"`
 	Avatar      string `json:"avatar"`
+	TotalScore  int    `json:"totalscore"`
+	TotalGames  int    `json:"totalgames"`
 }
 
 // GetAll return information about all user by pages (10 items per page)
@@ -57,6 +59,8 @@ func GetAll(db *sql.DB, page int, orderby string) ([]User, error) {
 		if temp, err := avatar.Value(); temp != nil && err == nil {
 			u.Avatar = temp.(string)
 		}
+		u.TotalGames = 5   // TODO убрать
+		u.TotalScore = 123 // TODO убрать
 		users = append(users, u)
 	}
 	return users, err
@@ -126,6 +130,8 @@ func GetOne(db *sql.DB, id int) (User, error) {
 	if temp, err := avatar.Value(); temp != nil && err == nil {
 		u.Avatar = temp.(string)
 	}
+	u.TotalGames = 5   // TODO убрать
+	u.TotalScore = 123 // TODO убрать
 	return u, err
 }
 

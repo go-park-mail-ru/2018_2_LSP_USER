@@ -179,7 +179,7 @@ func GetHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}{}
 
 	rules := govalidator.MapData{
-		"fields": []string{"required", "fields:username,email,firstname,lastname,rating,id,avatar"},
+		"fields": []string{"required", "fields:username,email,firstname,lastname,rating,id,avatar,totalscore,totalgames"},
 	}
 
 	opts := govalidator.Options{

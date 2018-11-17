@@ -58,7 +58,7 @@ func GetHandlerAll(env *Env, w http.ResponseWriter, r *http.Request) error {
 	}{}
 	rules := govalidator.MapData{
 		"page":    []string{"required", "numeric"},
-		"fields":  []string{"required", "fields:username,email,firstname,lastname,rating,id,avatar"},
+		"fields":  []string{"required", "fields:username,email,firstname,lastname,rating,id,avatar,totalscore,totalgames"},
 		"orderby": []string{"required", "in:id,username,email,firstname,lastname,rating"},
 	}
 	opts := govalidator.Options{
