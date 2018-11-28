@@ -12,7 +12,7 @@ type getOneUserPayload struct {
 }
 
 type getManyUsersPayload struct {
-	Page    int
-	Fields  string
-	OrderBy string
+	Page    int    `json:"page"`
+	Fields  string `json:"fields"`
+	OrderBy string `json:"orderby"`
 }
