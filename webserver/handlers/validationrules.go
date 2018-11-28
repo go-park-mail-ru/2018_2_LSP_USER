@@ -28,5 +28,5 @@ var getManyUsersRules = govalidator.MapData{
 }
 
 var avatarUpdateRules = govalidator.MapData{
-	"file:file": []string{"required", "ext:jpg,png", "size:300000", "mime:image/jpg,image/png"},
+	"file:file": []string{"required", "ext:jpg,png", "size:300000", "mime:image/jpg,image/png,image/jpeg"},
 }

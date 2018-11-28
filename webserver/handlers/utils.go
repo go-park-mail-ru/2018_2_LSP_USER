@@ -127,7 +127,7 @@ func checkPasswordUpdate(env *Env, payload updateUserPayload, claims map[string]
 	if len(payload.Password) > 0 {
 		if len(payload.OldPassword) == 0 {
 			env.Logger.Infow("Requested password change without old password",
-				"user", int(claims["id"].(int)),
+				"user", int(claims["id"].(float64)),
 			)
 			return StatusData{
 				Code: http.StatusBadRequest,
@@ -140,7 +140,7 @@ func checkPasswordUpdate(env *Env, payload updateUserPayload, claims map[string]
 		userManager := user_proto.NewUserCheckerClient(env.GRCPUser)
 		u, err := userManager.GetOne(ctx,
 			&user_proto.UserID{
-				ID: int64(claims["id"].(int)),
+				ID: int64(claims["id"].(float64)),
 			})
 
 		if err := handleGetOneUserGrpcError(env, err); err != nil {
