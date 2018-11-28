@@ -5,5 +5,10 @@ import (
 )
 
 func DefaultHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
-	return StatusData{http.StatusMethodNotAllowed, map[string]string{"error": "Method is not allowed"}}
+	return StatusData{
+		Code: http.StatusMethodNotAllowed,
+		Data: map[string]string{
+			"error": "Method is not allowed",
+		},
+	}
 }
