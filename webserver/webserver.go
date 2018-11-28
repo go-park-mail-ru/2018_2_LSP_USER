@@ -55,12 +55,12 @@ func Run(addr string) {
 		GRCPAuth: grcpAuth,
 	}
 
+	http.Handle("/metrics", promhttp.Handler())
+
 	handlersMap := routes.Get()
 	for URL, h := range handlersMap {
 		http.Handle(URL, handlers.Handler{env, h})
 	}
-
-	http.Handle("/metrics", promhttp.Handler())
 
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
