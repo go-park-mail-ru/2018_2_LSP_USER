@@ -86,8 +86,8 @@ func saveFile(file multipart.File, handle *multipart.FileHeader, id int) (string
 		return "", err
 	}
 
-	newFilename := os.Getenv("AVATARS_PATH") + strconv.Itoa(id) + "_" + handle.Filename
-	if err := ioutil.WriteFile(newFilename, data, 0666); err != nil {
+	newFilename := strconv.Itoa(id) + "_" + handle.Filename
+	if err := ioutil.WriteFile(os.Getenv("AVATARS_PATH")+newFilename, data, 0666); err != nil {
 		return "", err
 	}
 
