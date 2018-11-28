@@ -8,7 +8,7 @@ after_success:
 - sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST rm -r ~/server/user/*
 - sshpass -p $SSH_PASS scp -rp -o stricthostkeychecking=no * $SSH_USER@$SSH_HOST:~/server/user
 - sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
-  build -t user-server ~/server/user && docker stop user && docker run -e "DB_HOST=postgres"
+  build -t user-server ~/server/user ; docker stop user ; docker run -e "DB_HOST=postgres"
   -e "DB_USER=$DB_USER" -e "DB_PASS=$DB_PASS" -e "DB_DB=$DB_DB" -e "AVATARS_PATH=/go/src/github.com/go-park-mail-ru/2018_2_LSP_USER/avatars/"
   -d --publish 5050:8080 -v /var/www/html/avatars:/go/src/github.com/go-park-mail-ru/2018_2_LSP_USER/avatars/
   --name user --rm --link auth-grpc:auth-grpc --link user-grpc:user-grpc user-server
