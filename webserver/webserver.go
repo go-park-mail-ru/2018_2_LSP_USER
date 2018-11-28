@@ -29,7 +29,7 @@ func Run(addr string) {
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		sugar.Fatalw("Can't connect to user grpc",
+		sugar.Errorw("Can't connect to user grpc",
 			"error", err,
 		)
 		return
@@ -42,7 +42,7 @@ func Run(addr string) {
 	)
 
 	if err != nil {
-		sugar.Fatalw("Can't connect to user grpc",
+		sugar.Errorw("Can't connect to user grpc",
 			"error", err,
 		)
 		return

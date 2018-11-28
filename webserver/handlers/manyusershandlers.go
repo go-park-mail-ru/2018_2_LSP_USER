@@ -98,7 +98,7 @@ func GetManyUsersHandler(env *Env, w http.ResponseWriter, r *http.Request) error
 			break
 		}
 		if err != nil {
-			env.Logger.Fatalw("Stream read error",
+			env.Logger.Errorw("Stream read error",
 				"err", err.Error(),
 			)
 			return StatusData{
