@@ -95,9 +95,9 @@ func saveFile(file multipart.File, handle *multipart.FileHeader, id int) (string
 }
 
 func checkPermissions(env *Env, ID int, claims map[string]interface{}) error {
-	if claims["id"].(int) != ID {
+	if int(claims["id"].(float64)) != ID {
 		env.Logger.Infow("Not enough permssions for user change",
-			"user", int(claims["id"].(int)),
+			"user", int(claims["id"].(float64)),
 		)
 		return StatusData{
 			Code: http.StatusForbidden,
