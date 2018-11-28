@@ -14,16 +14,24 @@ import (
 
 // CreateNewUserHandler creates new user
 func CreateNewUserHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
-	var u user_proto.User
+	payload := createUserPayload{}
 	opts := govalidator.Options{
 		Request: r,
-		Data:    &u,
+		Data:    &payload,
 		Rules:   createNewUserRules,
 	}
 	v := govalidator.New(opts)
 	if e := v.ValidateJSON(); len(e) > 0 {
 		err := map[string]interface{}{"validationError": e}
 		return StatusData{http.StatusBadRequest, err}
+	}
+
+	u := user_proto.User{
+		Username:  payload.Username,
+		Email:     payload.Email,
+		Password:  payload.Password,
+		FirstName: payload.Firstname,
+		LastName:  payload.Lastname,
 	}
 
 	ctx := cnt.Background()
