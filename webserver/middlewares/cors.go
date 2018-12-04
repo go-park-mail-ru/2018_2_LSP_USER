@@ -11,8 +11,13 @@ import (
 func Cors(next handlers.HandlerFunc) handlers.HandlerFunc {
 	return func(env *handlers.Env, w http.ResponseWriter, r *http.Request) error {
 		if origin := r.Header.Get("Origin"); origin != "" {
-			if strings.HasSuffix(origin, ".jackal.online") {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
+			originSplitted := strings.Split(origin, ":")
+			if strings.HasSuffix(originSplitted[0], ".jackal.online") {
+				if len(originSplitted) > 1 {
+					w.Header().Set("Access-Control-Allow-Origin", originSplitted[0]+":"+originSplitted[1])
+				} else {
+					w.Header().Set("Access-Control-Allow-Origin", originSplitted[0])
+				}
 			} else {
 				w.Header().Set("Access-Control-Allow-Origin", "jackal.online")
 			}
