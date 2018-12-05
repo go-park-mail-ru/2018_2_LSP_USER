@@ -167,3 +167,40 @@ func GetOneUserHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
 		Data: answer,
 	}
 }
+
+// GetCurrentUserHandler return current user information
+func GetCurrentUserHandler(env *Env, w http.ResponseWriter, r *http.Request) error {
+	opts := govalidator.Options{
+		Request: r,
+		Rules:   getOneRules,
+	}
+	v := govalidator.New(opts)
+	if e := v.Validate(); len(e) > 0 {
+		err := map[string]interface{}{"validationError": e}
+		return StatusData{
+			Code: http.StatusBadRequest,
+			Data: err,
+		}
+	}
+	payload := getOneUserPayload{r.URL.Query()["fields"][0]}
+
+	claims := context.Get(r, "claims").(map[string]interface{})
+	ctx := cnt.Background()
+	userManager := user_proto.NewUserCheckerClient(env.GRCPUser)
+	u, err := userManager.GetOne(ctx,
+		&user_proto.UserID{
+			ID: int64(claims["id"].(float64)),
+		})
+
+	if err := handleGetOneUserGrpcError(env, err); err != nil {
+		return err
+	}
+
+	fieldsToReturn := strings.Split(payload.Fields, ",")
+	answer := extractFields(u, fieldsToReturn)
+
+	return StatusData{
+		Code: http.StatusOK,
+		Data: answer,
+	}
+}

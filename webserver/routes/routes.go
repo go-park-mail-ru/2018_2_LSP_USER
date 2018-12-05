@@ -18,6 +18,9 @@ func Get() handlers.HandlersMap {
 		"post": middlewares.Auth(handlers.UpdateAvatarHandler),
 		"get":  handlers.GetOneUserHandler,
 	})
+	handlersMap["/me"] = makeRequest(handlers.HandlersMap{
+		"get": middlewares.Auth(handlers.GetCurrentUserHandler),
+	})
 	return handlersMap
 }
 

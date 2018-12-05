@@ -52,6 +52,13 @@ type Handler struct {
 
 // ServeHTTP allows our Handler type to satisfy http.Handler.
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := recover(); err != nil {
+			h.Logger.Errorw("Recovered from panic",
+				"error", err,
+			)
+		}
+	}()
 	err := h.H(h.Env, w, r)
 	if err != nil {
 		switch e := err.(type) {
