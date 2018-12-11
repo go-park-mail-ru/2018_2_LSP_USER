@@ -58,6 +58,7 @@ func setAuthCookies(w http.ResponseWriter, tokenString string) {
 		Expires: time.Now().Add(30 * time.Minute),
 		Secure:  true,
 		Domain:  ".jackal.online",
+		Path:    "/",
 	}
 	cookieSignature := http.Cookie{
 		Name:     "signature",
@@ -66,6 +67,7 @@ func setAuthCookies(w http.ResponseWriter, tokenString string) {
 		Secure:   true,
 		HttpOnly: true,
 		Domain:   ".jackal.online",
+		Path:     "/",
 	}
 	http.SetCookie(w, &cookieHeaderPayload)
 	http.SetCookie(w, &cookieSignature)
