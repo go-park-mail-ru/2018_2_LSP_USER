@@ -1,17 +1,29 @@
 language: go
-go:
-- 1.11
-before_script:
+sudo: false
+matrix:
+  include:
+  - go: 1.x
+before_install:
+- go get github.com/mitchellh/gox
+- go get github.com/alecthomas/gometalinter
 - sudo apt-get install -qq sshpass
-script: 
+install:
+- 
+script:
+- go get -t -v ./...
+- gometalinter $(go list ./... | grep -v /vendor/) || true
+- go test -v -race ./...
+- CGO_ENABLED=0 gox -os="linux" -arch="amd64" -output="app.{{.OS}}.{{.Arch}}" -ldflags
+  "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...
 after_success:
-- sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST rm -r ~/server/user/*
-- sshpass -p $SSH_PASS scp -rp -o stricthostkeychecking=no * $SSH_USER@$SSH_HOST:~/server/user
+- sshpass -p $SSH_PASS scp -rp -o stricthostkeychecking=no app.linux.amd64 Dockerfile
+  $SSH_USER@$SSH_HOST:~/server/user
 - sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
-  build -t user-server ~/server/user 
-- sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker stop user 
-- sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker run -e "DB_HOST=postgres"
-  -e "DB_USER=$DB_USER" -e "DB_PASS=$DB_PASS" -e "DB_DB=$DB_DB" -e "AVATARS_PATH=/go/src/github.com/go-park-mail-ru/2018_2_LSP_USER/avatars/"
+  build -t user-server ~/server/user
+- sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
+  stop user
+- sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST docker
+  run -e "AVATARS_PATH=/go/src/github.com/go-park-mail-ru/2018_2_LSP_USER/avatars/"
   -d --publish 5050:8080 -v /var/www/html/avatars:/go/src/github.com/go-park-mail-ru/2018_2_LSP_USER/avatars/
   --name user --rm --link auth-grpc:auth-grpc --link user-grpc:user-grpc user-server
 env:
@@ -19,3 +31,12 @@ env:
   - secure: VPrucAhSz4kSNl9xlczB4+Yes5uloFZvY+4kSMsfh1tlTOfjvHLm7EAqKMPSzVBDGEA419SFw9Nau2whkx+2VXTUvbLBAh9OtkpTuLDLhmpLD6VvHapnlDnn5znDGJhdu1rg/NYd+iQkTL9GdAJE36cEUhvehMLdXXnJUrjXN442Sot8wol7GEJ9nM8GZpHcPCgjc3WGUf1OPtZL1AKr0+uTdkexW+D68JhzEfWzrVQ/2htOUL85WHhNWuNM1Xi26RqrOozY4pgRRvDECL6U0YONsIho9SThqDVp/xuhtsbVE/iEONpY2BBABUOev1n1DhsN5J5MMM4OXhCsQW228PYzaBowFPGaDwS+POgvP9QYSZX6oidy0o3fAptBLO144tSmC2AKDwQLkArnWA2p5PFrC80kbilJxojFwKPDGd9La2sUMQGgHul+jj6m50saPlkr9d4quH3j7sEV3CwQDjM87T3EB+Af83F2W2rBLFE8Ati8a4SMBQFlnETHaPKLmIkvbPsswJtWIzmSH+wcGchiem/e1nlaOpjsihtD1VbLtHdN5vltSrq42c2OhEmJMLpZKfdOA3S9IU5lhOWwhoLFRU/cpxSUg4kgmr9E0oHBBp83hXZlml1gA6epObygvc6GTFfJn6ouAvWz+4qvw8aN8xvtv08fA9c3W1Ljt+Q=
   - secure: UE6hmQkyeB8zZ58utD6kf4PqOlas4l9ZFfzCmXRv2bzOu8xDZhzYw/6D5eh9F/I+k2uHNAdB2TqX5ZW8fH62Bh2gcogDvrpGcHrsAUOqmlcM5yqhx13AgMy8MfA4CD3lunpLVhnMGtfCjeD8ztVNJIpbfibkOL75yB0IOOqe2x3wVQ0sWVUA/gSWlLFZNcgnHBc1HE/ItoCwsdl5+4KFW/htpxROGgq3j1EZpKBw0SzRyQYL7+WESRRDL8UixeoeQRWzr08DBEEHx9J19VHJICduKuj4UdLfQrE02yj2ZeRiZ09k4hU3ZJI4bG/oiEEh2We4jljWnW/NkZQG53lyIB9vY93yNJA5FR1LMRLQUAa7KaQjvGS9vPNelvCJ0sKTHJigjNSz6/ZeYJNMs063gyO5PMkAm2LiU/S2/XWaVk/c99nnuGG8RFNt8wXEqsFmx3z6gvS3ijOGpte3vO5jFkoSl2z9SB9ZSNEFCynoonO90JSN4+5KFAhYhOIjGDov2QuH0A+5UPiYYkEojlr5bpVDmFdZH0JqKidaoLTtcJ9DeOK/X3VG8rAQf1xrLUglIxL6u38my+K3Uz8DvoImsU3XlK4kYEdUUonT0vXuDvbcizu9qOmrR3Jeftz67hHoE/TnnZv/CllzO6t3bWZPSq+M4lc1axd8oT9G1QzCcXs=
   - secure: aYuGtE95h6/yJGv2X1ofNjIvVHF8407Gf4UVFdSb1ILjmfiBVm9OE/weu0W1fO1BrNo9OAG+/Zp6INcae1WG9dRxz70S3/Bc0UQQq/Wc1k6tM17m1CHwbBauz+Hjs1/RNPGiOcHzMFmvrw2AwIpOi6h2CYy6IvWclAbmDofpCOh7ecFCOm5hpANSbFYh5lfa4k4gKA03ST8qCyGvNfQl8zvXQt/8QDxhC+a0lCdZ+J1CMVkDiZFRo5sSK1rLreObGYj2jG+aKsnHtMi0z6Ivh3NofaRkEhkzFNtO6y/gnMudZpbx5WyCE+t/IKXMIwvHgnjdqLZwMLriGDKh6ejL0KDb7ILfV4q7Iorqutl6P/iU3CMtkVQ2hHRWkKKwTnnBTD6krr9xweF6ra887pYVrYQvZ6bdZ4HgTnsW57nAPXK9H72w7CwNWJMTc37EZUk+q+7AaX3CZX1KXMgW+R0JLmEfn5fHSQkVSfqLC7UrjecYTXLkPlLtg6c2t2Z696svSTmKGA0hlMn72ChLU8GII1fMMeo6hc+mW83IiCHubwsxmMWDs0767Tef8ggA+aI+rcdGi0EBsYXGrdLsGACO0XV/aGDve8gOQtQZimMjtavB364Jd8+I3f7dUqXsiJ+9cUsrc7aXcHgwvdS6aO9f6XBBSh61r5ptC6vP+Hl6XuI=
+deploy:
+  provider: releases
+  api_key:
+    secure: Pp+VzIzAyHpqc36t+/PpEV7jlrbKih4TZNVm3U+O2c6+JAm8e4klFVRgX6RoTYWCUx8u4AYkgUaVzAjW5HuVPvtVQ8T8q1ikVx7N//XXenU3oXUNxn0rduhjPd82AIoWZzxCAQN0W6T2e+NEH8z8t58UaMP8uS+3nV055egg9Swzutzcv6QrwmbyerBF0O88YDQ2+vPUhvlx/JDR8RW+xdoBKYmEzEAGU4YQui0e7dClXm27PhxXgxmtfCqEYj/9ZqA/1I6QRr4NcGPOyjwdmnbvm8+dJzNWVHxtawSVX3G582lqoT8rE2fT2/xzJ+0Dg/qc/R8Fpey26MFLE62VpNv6WAL77bgN/IK8to0XsGnbKmp0UP4bVYGlUQSWEQxU2EIBrISkP5uvDblkYvNkzQmRGX1o0hkD6bjacDuHl7U3+yfFNTFFB2JjDO8SjFhZSe7c388UUkvz5Wnc/oq/hiXX6yQzCLlEweKuot3VohogLh4fZArGXAKCV1AHG3uB+XfvUG60HUFuAmrqaV1sb1GbJZyA91eSa+tJhRi1044+Kop7cOYylCHNI3DYBSAWnTRNiLZoY1OnDXse15a4Y2REX6YP0XLHOqpLmgEIcPRE43C2AnW9BytElJ3KE8BjQXP3uMSVUNBMZTZiOeCUnDLnoGOi5WrOpX2eFp5UeZQ=
+  skip_cleanup: true
+  file:
+    - app.linux.amd64
+  on:
+    repo: go-park-mail-ru/2018_2_LSP_USER
