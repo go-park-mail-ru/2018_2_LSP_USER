@@ -74,7 +74,7 @@ func GetManyUsersHandler(env *Env, w http.ResponseWriter, r *http.Request) error
 
 	payload := getManyUsersPayload{}
 	payload.Fields = r.URL.Query()["fields"][0]
-	payload.Page, _ = strconv.Atoi(r.URL.Query()["page"][0])
+	payload.Page, _ = strconv.Atoi(r.URL.Query()["page"][0]) // nolint: gosec
 	payload.OrderBy = r.URL.Query()["orderby"][0]
 
 	ctx := cnt.Background()
